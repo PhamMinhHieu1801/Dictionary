@@ -1,0 +1,99 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include"libbt/inc/btree.h"
+
+char *tachtu(char *line, char *word);
+//void ReadFile(FILE *fptr, char *filename);
+void insertBtree(FILE *fptr, char *filename, BTA *root);
+
+int main(){
+	FILE *fptr;
+	char filedict[80] = "td.dict";
+	char filedatabase[80] = "database.dat";
+	BTA *tree;
+	btinit();
+	printf("Init SUCCESS\n");
+    //root = btcrt(filedatabase, 0, 0);
+	tree = btopn(filedatabase, 0, 0);
+	printf("btopn SUCCESS\n");
+	if(!tree){
+		 tree = btcrt(filedatabase, 0 , 0);
+		 printf("btcrt SUCCESS\n");
+	}
+	insertBtree(fptr, filedict, tree);
+	printf("insert SUCCESS\n");
+    btcls(tree);
+	printf("SUCCESS make database\n");
+	return 0;
+}
+
+char *tachtu(char *line, char *word){
+	for(int j=1; j<strlen(line); j++){
+		if(line[j]=='/'){
+			word[j-1]='\0';
+		}
+		else
+			word[j-1]=line[j];
+	}
+   return word ;
+}		
+
+/*void ReadFile(FILE *fptr, char *filename){
+	char word[200];
+	char mean[1000], line[200];
+	int count = 0;
+	if((fptr = fopen(filename, "r"))==NULL){
+		printf("Cannot open file\n");
+		exit(1);
+	}
+	else{
+		while((!feof(fptr))){
+	   		fgets(line, 80, fptr);
+			line[strlen(line)-1]='\0';
+			if(line[0]=='@'){
+				tachtu(line, word);
+				printf("%s\n", word);
+				mean[0] = '\0';
+					count++ ;
+			}
+			else {
+				strcat(mean,line);				
+			}
+		}
+	}
+	fclose(fptr);
+}
+*/
+void insertBtree(FILE *fptr, char *filename, BTA *root){
+	char word[200];
+	char mean[1000], line[200], *c;
+	int count = 0, flag1 = 1, flag2 = 1,flag = 0;
+	if((fptr = fopen(filename, "r"))==NULL){
+		printf("Cannot open file\n");
+		exit(1);
+	}
+	else{
+		while((!feof(fptr)) || flag == 0){ 
+			c = fgets(line, 200, fptr);
+			line[strlen(line)-1]='\0';
+			if(line[0]=='@'|| flag == 0){
+				if(flag1==0){
+					btins(root, word, mean, strlen(mean));
+					printf("%s\n%s\n\n", word, mean);
+					count ++ ;
+					//printf("Insert SUCCESS %d\n", count);	
+				 }
+
+				tachtu(line, word);
+				mean[0] = '\0';
+				flag1 = 0;
+				if(c == NULL) flag = 1;
+			}
+			else {
+				strcat(mean,line);
+			}
+		}				   		
+	}
+	fclose(fptr);	
+}
